@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Quiz Reviewer</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background:
+        radial-gradient(circle at top left, #573c8d, transparent 35%),
+        radial-gradient(circle at bottom right, #174a70, transparent 35%),
+        #10131f;
+    color: white;
+    min-height: 100vh;
+}
+
+.container {
+    width: 92%;
+    max-width: 900px;
+    margin: auto;
+    padding: 35px 0;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.header h1 {
+    font-size: 34px;
+    margin: 0 0 8px;
+}
+
+.header p {
+    color: #bfc4d9;
+    margin: 0;
+}
+
+.quiz-card {
+    background: rgba(25, 28, 45, 0.94);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 22px;
+    padding: 30px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+}
+
+.top-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    color: #c8cce0;
+}
+
+.progress {
+    width: 100%;
+    height: 9px;
+    background: #292d42;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 28px;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #8b5cf6, #38bdf8);
+    transition: width 0.4s ease;
+}
+
+.question {
+    font-size: 24px;
+    line-height: 1.5;
+    margin-bottom: 25px;
+}
+
+.option {
+    width: 100%;
+    padding: 17px;
+    margin: 12px 0;
+    border: 2px solid #34394f;
+    border-radius: 14px;
+    background: #202438;
+    color: white;
+    text-align: left;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.option:hover {
+    border-color: #8b5cf6;
+    background: #292d45;
+    transform: translateY(-2px);
+}
+
+.option.correct {
+    border-color: #22c55e;
+    background: rgba(34,197,94,0.15);
+}
+
+.option.wrong {
+    border-color: #ef4444;
+    background: rgba(239,68,68,0.15);
+}
+
+.option:disabled {
+    cursor: default;
+}
+
+.hint-box {
+    margin-top: 20px;
+}
+
+.hint-button {
+    background: transparent;
+    color: #a78bfa;
+    border: 1px solid #5b4b86;
+    border-radius: 10px;
+    padding: 10px 15px;
+    cursor: pointer;
+}
+
+.hint-text {
+    display: none;
+    margin-top: 10px;
+    padding: 13px;
+    border-radius: 10px;
+    background: #171a29;
+    color: #c7cbe0;
+    line-height: 1.5;
+}
+
+.hint-text.show {
+    display: block;
+}
+
+.explanation {
+    display: none;
+    margin-top: 25px;
+    padding: 20px;
+    border-radius: 15px;
+    background: #171a29;
+    border-left: 5px solid #8b5cf6;
+}
+
+.explanation.show {
+    display: block;
+}
+
+.explanation h3 {
+    margin-top: 0;
+    color: #c4b5fd;
+}
+
+.explanation p {
+    line-height: 1.6;
+    color: #d4d7e5;
+}
+
+.next-button,
+.restart-button {
+    width: 100%;
+    padding: 15px;
+    margin-top: 22px;
+    border: none;
+    border-radius: 13px;
+    background: linear-gradient(90deg, #7c3aed, #2563eb);
+    color: white;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.next-button:hover,
+.restart-button:hover {
+    opacity: 0.9;
+}
+
+.result {
+    display: none;
+    text-align: center;
+}
+
+.result h2 {
+    font-size: 35px;
+}
+
+.score {
+    font-size: 55px;
+    font-weight: bold;
+    margin: 20px 0;
+    color: #a78bfa;
+}
+
+.result-message {
+    color: #c8cce0;
+    font-size: 18px;
+    line-height: 1.6;
+}
+
+.footer {
+    text-align: center;
+    color: #777d96;
+    margin-top: 25px;
+    font-size: 13px;
+}
+
+@media (max-width: 600px) {
+
+    .container {
+        width: 94%;
+        padding: 20px 0;
+    }
+
+    .quiz-card {
+        padding: 20px;
+        border-radius: 17px;
+    }
+
+    .header h1 {
+        font-size: 25px;
+    }
+
+    .question {
+        font-size: 19px;
+    }
+
+    .option {
+        font-size: 15px;
+        padding: 15px;
+    }
+
+    .top-info {
+        font-size: 13px;
+    }
+}
+</style>
+
+<style>
+html {
+    width: 100%;
+    min-height: 100%;
+}
+
+body {
+    width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+}
+
+.container {
+    width: min(92%, 900px);
+    max-width: 900px;
+}
+
+.quiz-card {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.question,
+.option,
+.explanation,
+.hint-text,
+.result-message {
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
+
+.option {
+    min-height: 54px;
+}
+
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1000px;
+    }
+
+    .quiz-card {
+        padding: 40px;
+    }
+
+    .question {
+        font-size: 26px;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1199px) {
+    .container {
+        width: 90%;
+        max-width: 850px;
+    }
+
+    .quiz-card {
+        padding: 30px;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 0;
+    }
+
+    .container {
+        width: 100%;
+        max-width: none;
+        padding: 18px 14px;
+    }
+
+    .header h1 {
+        font-size: clamp(25px, 6vw, 34px);
+        line-height: 1.2;
+    }
+
+    .header p {
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .quiz-card {
+        padding: clamp(18px, 4vw, 28px);
+        border-radius: 16px;
+    }
+
+    .top-info {
+        font-size: 13px;
+    }
+
+    .question {
+        font-size: clamp(19px, 4vw, 24px);
+        line-height: 1.45;
+    }
+
+    .option {
+        margin: 7px 0;
+        padding: 15px;
+        font-size: 15px;
+        line-height: 1.45;
+    }
+
+    .hint-button {
+        padding: 10px 13px;
+        font-size: 14px;
+    }
+
+    .explanation {
+        padding: 17px;
+    }
+
+    .next-button,
+    .restart-button {
+        min-height: 50px;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 12px 9px;
+    }
+
+    .header {
+        margin-bottom: 18px;
+    }
+
+    .header h1 {
+        font-size: clamp(23px, 7vw, 30px);
+    }
+
+    .header p {
+        font-size: 13px;
+    }
+
+    .quiz-card {
+        padding: 17px 14px;
+        border-radius: 14px;
+    }
+
+    .top-info {
+        gap: 8px;
+        font-size: 12px;
+    }
+
+    .progress {
+        height: 7px;
+        margin-bottom: 22px;
+    }
+
+    .question {
+        font-size: 19px;
+        line-height: 1.4;
+        margin-bottom: 18px;
+    }
+
+    .option {
+        padding: 13px;
+        font-size: 14px;
+        border-width: 1px;
+    }
+
+    .hint-text,
+    .explanation p {
+        font-size: 13px;
+    }
+
+    .explanation h3 {
+        font-size: 18px;
+    }
+
+    .result h2 {
+        font-size: 29px;
+    }
+
+    .score {
+        font-size: 48px;
+    }
+
+    .result-message {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 360px) {
+    .container {
+        padding: 9px 6px;
+    }
+
+    .quiz-card {
+        padding: 15px 11px;
+    }
+
+    .top-info {
+        font-size: 11px;
+    }
+
+    .question {
+        font-size: 18px;
+    }
+
+    .option {
+        padding: 12px 10px;
+        font-size: 13px;
+    }
+
+    .next-button,
+    .restart-button {
+        font-size: 14px;
+    }
+}
+
+@media (hover: none) and (pointer: coarse) {
+    .option:hover {
+        transform: none;
+    }
+
+    .option {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    button {
+        touch-action: manipulation;
+    }
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>Mga Pakikibaka at Pagbuo ng Kamalayang Pilipino</h1>
+        <p>Quiz Reviewer</p>
+    </div>
+
+    <div class="quiz-card">
+
+        <div id="quizScreen">
+
+            <div class="top-info">
+                <span id="questionNumber">Question 1 of 15</span>
+                <span id="scoreText">Score: 0</span>
+            </div>
+
+            <div class="progress">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+
+            <div class="question" id="question">
+                Question goes here
+            </div>
+
+            <div id="options"></div>
+
+            <div class="hint-box">
+                <button class="hint-button" onclick="showHint()">
+                    💡 Show Hint
+                </button>
+
+                <div class="hint-text" id="hint">
+                    Hint goes here
+                </div>
+            </div>
+
+            <div class="explanation" id="explanation">
+
+                <h3 id="resultTitle">
+                    Explanation
+                </h3>
+
+                <p id="explanationText">
+                    Explanation goes here
+                </p>
+
+                <p id="importantText">
+                    Important thing to remember goes here.
+                </p>
+
+            </div>
+
+            <button
+                class="next-button"
+                id="nextButton"
+                onclick="nextQuestion()"
+                style="display:none;">
+                Next Question →
+            </button>
+
+        </div>
+
+        <div class="result" id="resultScreen">
+
+            <h2>Quiz Complete!</h2>
+
+            <div class="score" id="finalScore">
+                0 / 15
+            </div>
+
+            <p class="result-message" id="resultMessage">
+                Result
+            </p>
+
+            <button
+                class="restart-button"
+                onclick="restartQuiz()">
+                Try Again
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="footer">
+        Reviewer based on the lesson:
+        “Mga Pakikibaka at Pagbuo ng Kamalayang Pilipino”
+    </div>
+
+</div>
+
+<script>
+
+const questions = [
+
+{
+    question:
+    "Alin ang pinakamahusay na naglalarawan sa pangunahing panawagan ng Kilusang Propaganda?",
+
+    options: [
+        "Ganap na armadong rebolusyon laban sa Espanya",
+        "Reporma, representasyon, pagkakapantay-pantay at pagkilala sa karapatan",
+        "Pagpapatigil ng edukasyon at pamamahayag",
+        "Pagbuo ng pamahalaang Hapones sa Pilipinas"
+    ],
+
+    answer: 1,
+
+    hint:
+    "Ihambing ang layunin ng Propaganda sa paraan ng pagbabago na ginamit ng Katipunan.",
+
+    explanations: [
+        "Ang armadong rebolusyon ay mas tuwirang iniuugnay sa Katipunan kaysa sa pangunahing panawagan ng Kilusang Propaganda.",
+
+        "Tama. Kabilang sa mga panawagan ng Kilusang Propaganda ang pagkakapantay-pantay ng Pilipino at Espanyol, representasyon, reporma sa pamahalaan at simbahan, pagpapabuti ng edukasyon, at pagkilala sa karapatan.",
+
+        "Hindi ito tama dahil kabilang mismo sa mga panawagan ang pagpapabuti ng edukasyon at paggamit ng pagsulat at pamamahayag.",
+
+        "Hindi ito kabilang sa Kilusang Propaganda. Ang paksa nito ay nasa ibang panahon ng kasaysayan."
+    ],
+
+    important:
+    "TANDAAN: Propaganda Movement = REFORM. Katipunan = REVOLUTION."
+},
+
+{
+    question:
+    "Alin ang tamang pares na nag-uugnay sa Kilusang Propaganda at Katipunan?",
+
+    options: [
+        "Propaganda—gerilya; Katipunan—Women's Suffrage",
+        "Propaganda—reporma; Katipunan—armadong rebolusyon",
+        "Propaganda—forced labor; Katipunan—edukasyon",
+        "Propaganda—Bataan Death March; Katipunan—Kasunduan sa Paris"
+    ],
+
+    answer: 1,
+
+    hint:
+    "Isipin ang pagkakaiba ng repormistang paraan at rebolusyonaryong paraan.",
+
+    explanations: [
+        "Hindi tama. Ang gerilya ay nauugnay sa Resistance Movement noong panahon ng mga Hapones, habang ang Women's Suffrage ay tungkol sa karapatang bumoto ng kababaihan.",
+
+        "Tama. Ang Propaganda Movement ay nakatuon sa mga reporma, samantalang ang Katipunan ay nakaugnay sa kalayaan at armadong rebolusyon.",
+
+        "Hindi tama. Ang forced labor ay kabilang sa mga karahasan noong panahon ng mga Hapones, habang ang edukasyon ay kabilang sa mga panawagan ng Propaganda.",
+
+        "Hindi tama. Ang Bataan Death March ay noong panahon ng mga Hapones, samantalang ang Kasunduan sa Paris ay noong 1898."
+    ],
+
+    important:
+    "TANDAAN: Huwag paghaluin ang paraan ng Propaganda at Katipunan. Reporma vs. rebolusyon ang malaking distinction."
+},
+
+{
+    question:
+    "Alin sa sumusunod ang pinakatamang paglalarawan sa Katipunan?",
+
+    options: [
+        "Lihim na samahan na naghangad ng kalayaan sa pamamagitan ng armadong rebolusyon",
+        "Organisasyon na pangunahing humingi ng representasyon sa pamahalaang Espanyol",
+        "Kilusan na pangunahing nakatuon sa women's suffrage",
+        "Samahan na nabuo upang suportahan ang pamahalaang Amerikano"
+    ],
+
+    answer: 0,
+
+    hint:
+    "Tatlong keyword ang mahalaga: lihim na samahan, kalayaan, at armadong pakikibaka.",
+
+    explanations: [
+        "Tama. Ang lesson ay nag-uugnay sa Katipunan kina Andres Bonifacio, lihim na samahan, kalayaan, at armadong rebolusyon.",
+
+        "Hindi ito ang pangunahing paglalarawan sa Katipunan. Ang representasyon at reporma ay mas malapit sa Kilusang Propaganda.",
+
+        "Hindi ito ang pangunahing layunin ng Katipunan. Ang women's suffrage ay naging mahalagang usapin makalipas ang ilang dekada.",
+
+        "Hindi ito ang layunin ng Katipunan. Ang kilusan ay nakaugnay sa pakikibaka para sa kalayaan."
+    ],
+
+    important:
+    "TANDAAN: Katipunan = Andres Bonifacio + lihim na samahan + kalayaan + armadong rebolusyon."
+},
+
+{
+    question:
+    "Anong petsa ang nakalista sa lesson bilang petsa ng pagtatatag ng Katipunan?",
+
+    options: [
+        "Hulyo 7, 1892",
+        "Marso 22, 1897",
+        "Hunyo 12, 1898",
+        "Disyembre 10, 1898"
+    ],
+
+    answer: 0,
+
+    hint:
+    "Ang petsa ay mas maaga kaysa Tejeros Convention at Philippine Independence declaration.",
+
+    explanations: [
+        "Tama. Hulyo 7, 1892 ang petsang nakalista sa lesson para sa Katipunan.",
+
+        "Hindi tama. Marso 22, 1897 ay petsa ng Tejeros Convention.",
+
+        "Hindi tama. Hunyo 12, 1898 ay petsa ng pagdeklara ng kalayaan mula sa Espanya.",
+
+        "Hindi tama. Disyembre 10, 1898 ay petsa ng paglagda sa Kasunduan sa Paris."
+    ],
+
+    important:
+    "TANDAAN: 1892 = Katipunan; 1897 = Tejeros; 1898 = Independence declaration at Paris Treaty."
+},
+
+{
+    question:
+    "Ano ang mahalagang usaping ipinakita ng Magdiwang at Magdalo sa Tejeros Convention?",
+
+    options: [
+        "Pagkakaisa ng lahat ng rebolusyonaryo nang walang anumang alitan",
+        "Hindi pagkakasundo sa loob ng rebolusyon",
+        "Pakikibaka para sa women's suffrage",
+        "Pagbuo ng Resistance Movement laban sa Hapones"
+    ],
+
+    answer: 1,
+
+    hint:
+    "Parehong pangkat ay nasa Cavite at ang lesson ay direktang nagbanggit ng internal disagreement.",
+
+    explanations: [
+        "Hindi tama dahil binanggit mismo sa lesson ang hindi pagkakasundo sa loob ng rebolusyon.",
+
+        "Tama. Ang Magdiwang at Magdalo ay nauugnay sa Cavite at sa Tejeros Convention noong Marso 22, 1897, kung saan binigyang-diin ang hindi pagkakasundo sa loob ng rebolusyon.",
+
+        "Hindi ito ang paksa ng Tejeros Convention. Ang women's suffrage ay naging usapin noong mas huling panahon.",
+
+        "Hindi tama dahil ang Resistance Movement ay kaugnay ng panahon ng mga Hapones."
+    ],
+
+    important:
+    "TANDAAN: Kahit iisa ang malaking layunin ng isang kilusan, maaaring magkaroon ng INTERNAL CONFLICT sa loob nito."
+},
+
+{
+    question:
+    "Ano ang pagkakaiba ng June 12, 1898 at July 4, 1946 ayon sa lesson?",
+
+    options: [
+        "1898—pagkilala ng Estados Unidos; 1946—pagdeklara laban sa Espanya",
+        "1898—pagdeklara laban sa Espanya; 1946—pagkilala ng Estados Unidos sa kalayaan",
+        "1898—Women's Suffrage; 1946—Commonwealth",
+        "1898—Bataan Death March; 1946—Kasunduan sa Paris"
+    ],
+
+    answer: 1,
+
+    hint:
+    "Isang petsa ay tungkol sa declaration at ang isa ay tungkol sa recognition.",
+
+    explanations: [
+        "Baligtad ang dalawang pangyayari.",
+
+        "Tama. June 12, 1898 ay pagdeklara ng kalayaan mula sa Espanya. July 4, 1946 naman ay pagkilala ng Estados Unidos sa Philippine independence.",
+
+        "Hindi tama. Women's Suffrage ay 1937, habang ang Commonwealth ay 1935.",
+
+        "Hindi tama. Ang Bataan Death March ay noong panahon ng Hapones at ang Kasunduan sa Paris ay noong 1898."
+    ],
+
+    important:
+    "TANDAAN: June 12, 1898 = declaration from Spain. July 4, 1946 = U.S. recognition of independence."
+},
+
+{
+    question:
+    "Alin ang tamang pagkakasunod-sunod ng proseso ng Women's Suffrage na ipinakita sa lesson?",
+
+    options: [
+        "1935 Constitution → Plebisito → Abril 30, 1937 → Karapatang bumoto",
+        "Plebisito → 1935 Constitution → 1946 Independence → Karapatang bumoto",
+        "1946 Independence → 1937 Plebisito → 1935 Constitution → Suffrage",
+        "1937 Plebisito → 1935 Constitution → 1898 Independence → Suffrage"
+    ],
+
+    answer: 0,
+
+    hint:
+    "Magsimula sa constitutional basis bago ang plebisito.",
+
+    explanations: [
+        "Tama. Ito ang sequence na ipinakita: 1935 Constitution, plebisito, Abril 30, 1937, at pagkamit ng karapatang bumoto.",
+
+        "Hindi tama dahil nauuna ang 1935 Constitution bago ang plebisito.",
+
+        "Hindi tama dahil binaligtad nito ang chronology ng 1935 Constitution at 1937 plebisito.",
+
+        "Hindi tama dahil mali ang pagkakasunod-sunod ng 1935 Constitution at 1937 plebisito."
+    ],
+
+    important:
+    "TANDAAN: 1935 Constitution → 1937 Women's Suffrage Plebiscite."
+},
+
+{
+    question:
+    "Ano ang mahalagang resulta ng Women's Suffrage plebiscite noong Abril 30, 1937?",
+
+    options: [
+        "Mahigit 440,000 boto ang pabor sa karapatang bumoto",
+        "Mahigit 440,000 boto ang tumutol sa karapatang bumoto",
+        "Naitatag ang Katipunan",
+        "Idineklara ang kalayaan mula sa Espanya"
+    ],
+
+    answer: 0,
+
+    hint:
+    "Ang number na nasa lesson ay mahigit 440,000 at ang result ay pabor.",
+
+    explanations: [
+        "Tama. Nakasaad sa lesson na mahigit 440,000 boto ang pabor at naugnay ito sa karapatang bumoto ng kababaihan.",
+
+        "Hindi tama dahil ang lesson ay nagsasaad na mahigit 440,000 boto ang PABOR.",
+
+        "Hindi tama. Ang Katipunan ay nakalista noong 1892.",
+
+        "Hindi tama. Ang declaration of independence from Spain ay June 12, 1898."
+    ],
+
+    important:
+    "TANDAAN: April 30, 1937 = Women's Suffrage Plebiscite."
+},
+
+{
+    question:
+    "Alin ang tamang sequence ng Bataan Death March ayon sa lesson?",
+
+    options: [
+        "Bataan → San Fernando → Capas → Camp O'Donnell",
+        "Bataan → Capas → San Fernando → Camp O'Donnell",
+        "Camp O'Donnell → Bataan → San Fernando → Capas",
+        "San Fernando → Bataan → Camp O'Donnell → Capas"
+    ],
+
+    answer: 0,
+
+    hint:
+    "May tatlong pangunahing movement: Bataan, San Fernando, at Capas bago Camp O'Donnell.",
+
+    explanations: [
+        "Tama. Nakasaad ang sequence na Bataan → San Fernando, San Fernando → Capas, at Capas → Camp O'Donnell.",
+
+        "Hindi tama dahil nauuna ang San Fernando bago Capas sa lesson.",
+
+        "Hindi tama dahil Camp O'Donnell ang destination, hindi ang starting point.",
+
+        "Hindi tama dahil Bataan ang starting point ng sequence na ipinakita."
+    ],
+
+    important:
+    "TANDAAN: Bataan → San Fernando → Capas → Camp O'Donnell."
+},
+
+{
+    question:
+    "Ano ang paraan ng paglalakbay na ipinakita sa Bataan Death March sequence?",
+
+    options: [
+        "Naglakad → tren → naglakad ulit",
+        "Tren → naglakad → barko",
+        "Barko → tren → naglakad",
+        "Naglakad lamang sa buong ruta"
+    ],
+
+    answer: 0,
+
+    hint:
+    "May isang bahagi ng route kung saan isinakay sa tren.",
+
+    explanations: [
+        "Tama. Bataan → San Fernando ay naglakad; San Fernando → Capas ay isinakay sa tren; Capas → Camp O'Donnell ay naglakad ulit.",
+
+        "Hindi tama dahil ang tren ay nasa ikalawang bahagi ng route, hindi unang bahagi.",
+
+        "Hindi tama dahil walang barkong binanggit sa route ng lesson.",
+
+        "Hindi tama dahil malinaw na binanggit ang paggamit ng tren sa San Fernando → Capas."
+    ],
+
+    important:
+    "TANDAAN: WALK → TRAIN → WALK."
+},
+
+{
+    question:
+    "Alin sa sumusunod ang HINDI kabilang sa mga karahasang nakalista para sa panahon ng mga Hapones?",
+
+    options: [
+        "Bataan Death March",
+        "Mass killings",
+        "Comfort women",
+        "Women's Suffrage Plebiscite"
+    ],
+
+    answer: 3,
+
+    hint:
+    "Tatlong pagpipilian ay nasa slide tungkol sa karahasan; isa ay tungkol sa political rights.",
+
+    explanations: [
+        "Bataan Death March ay kabilang sa mga karahasang nakalista.",
+
+        "Mass killings ay kabilang sa mga karahasang nakalista.",
+
+        "Comfort women ay kabilang sa mga karahasang nakalista.",
+
+        "Tama. Women's Suffrage Plebiscite ay tungkol sa karapatang bumoto at naganap noong 1937, hindi ito kabilang sa listahan ng karahasan sa panahon ng mga Hapones."
+    ],
+
+    important:
+    "TANDAAN: Ihiwalay ang mga isyu ayon sa historical period. 1937 Suffrage ay iba sa 1942–1945 Japanese occupation."
+},
+
+{
+    question:
+    "Alin ang pinakamalawak na paglalarawan sa mga sektor na bumuo sa Resistance Movement?",
+
+    options: [
+        "Mga sundalo lamang mula sa pambansang pamahalaan",
+        "Gerilya, komunidad, kababaihan, magsasaka, kabataan, at ordinaryong mamamayan",
+        "Propagandista, ilustrado, at mga manunulat ng La Solidaridad",
+        "Mga opisyal ng pamahalaang Espanyol lamang"
+    ],
+
+    answer: 1,
+
+    hint:
+    "Maraming sektor ng ordinaryong lipunan ang kasama sa listahan.",
+
+    explanations: [
+        "Hindi tama dahil hindi lamang sundalo ang nakalista.",
+
+        "Tama. Binanggit ang gerilya, komunidad, kababaihan, magsasaka, kabataan, at ordinaryong mamamayan.",
+
+        "Hindi tama dahil ang mga terminong ito ay mas kaugnay ng Kilusang Propaganda.",
+
+        "Hindi tama dahil hindi ito ang listahan ng Resistance Movement."
+    ],
+
+    important:
+    "TANDAAN: Resistance ay hindi lamang tungkol sa sundalo. Kasama ang iba't ibang sektor ng komunidad."
+},
+
+{
+    question:
+    "Ano ang ipinapakita ng paksa tungkol sa mga Igorot at 'labanang pockets'?",
+
+    options: [
+        "Ang ambag ng mga lokal na komunidad sa digmaan",
+        "Na walang papel ang mga katutubo sa digmaan",
+        "Na ang lahat ng labanan ay naganap lamang sa kabisera",
+        "Na ang Cordillera ay sentro ng Women's Suffrage"
+    ],
+
+    answer: 0,
+
+    hint:
+    "Bigyang-pansin ang mga salitang Cordillera, katutubo, lokal na labanan, at ambag.",
+
+    explanations: [
+        "Tama. Binibigyang-diin ng lesson ang Cordillera, mga katutubo, lokal na labanan, at ambag ng mga lokal na komunidad.",
+
+        "Hindi tama dahil kabaligtaran nito ang ipinapakita ng lesson.",
+
+        "Hindi tama dahil ang paksa ay partikular na tumutukoy sa mga lokal na labanan.",
+
+        "Hindi ito ang ugnayang ipinakita ng lesson. Ang Women's Suffrage ay ibang historical topic."
+    ],
+
+    important:
+    "TANDAAN: Kahit maliit ang komunidad, maaaring mahalaga ang ambag nito sa mas malaking pangyayari."
+},
+
+{
+    question:
+    "Alin ang pinakamalapit na kahulugan ng 'agraryo' ayon sa mga paksang nakalista sa lesson?",
+
+    options: [
+        "Mga usapin tungkol sa lupa, pagsasaka, upa, tributo at karapatan ng magsasaka",
+        "Mga usapin lamang tungkol sa edukasyon",
+        "Mga usapin lamang tungkol sa kalayaan sa pamamahayag",
+        "Mga usapin tungkol sa women's suffrage lamang"
+    ],
+
+    answer: 0,
+
+    hint:
+    "Tingnan ang limang keyword sa slide: lupa, pagsasaka, upa, tributo, at karapatan ng magsasaka.",
+
+    explanations: [
+        "Tama. Ang Kilusang Agraryo sa lesson ay nakasentro sa lupa, pagsasaka, upa, tributo, at karapatan ng mga magsasaka.",
+
+        "Hindi tama dahil ang edukasyon ay ibang bahagi ng lesson.",
+
+        "Hindi tama dahil ang pagsulat at pamamahayag ay mas kaugnay ng Kilusang Propaganda.",
+
+        "Hindi tama dahil ang women's suffrage ay tungkol sa karapatang bumoto ng kababaihan."
+    ],
+
+    important:
+    "TANDAAN: AGRARYO = LUPA + PAGSASAKA + KARAPATAN NG MAGSASAKA."
+},
+
+{
+    question:
+    "Alin ang pinakamahusay na synthesis ng mga konseptong bumubuo sa Kamalayang Pilipino sa lesson?",
+
+    options: [
+        "Pagkakakilanlan, karapatan, pagkakapantay-pantay, kalayaan, at sariling pamamahala",
+        "Pananakop, forced labor, at mass killings lamang",
+        "Edukasyon at ekonomiya lamang",
+        "Pamahalaang Amerikano at Japanese occupation lamang"
+    ],
+
+    answer: 0,
+
+    hint:
+    "May limang pangunahing konsepto sa slide tungkol sa pagbuo ng Kamalayang Pilipino.",
+
+    explanations: [
+        "Tama. Nakalista ang pagkakakilanlan, karapatan, pagkakapantay-pantay, kalayaan, at sariling pamamahala.",
+
+        "Hindi tama. Ang mga ito ay mga halimbawa ng karanasan sa panahon ng digmaan, hindi ang buong konsepto ng Kamalayang Pilipino.",
+
+        "Hindi tama dahil mas malawak ang konsepto at kabilang ang karapatan, pagkakapantay-pantay, kalayaan, at sariling pamamahala.",
+
+        "Hindi tama dahil mga partikular na historical period lamang ang mga ito."
+    ],
+
+    important:
+    "TANDAAN: KAMALAYANG PILIPINO = IDENTITY + RIGHTS + EQUALITY + FREEDOM + SELF-GOVERNMENT."
+}
+
+];
+
+let currentQuestion = 0;
+let score = 0;
+let answered = false;
+
+const questionNumber =
+    document.getElementById("questionNumber");
+
+const scoreText =
+    document.getElementById("scoreText");
+
+const progressBar =
+    document.getElementById("progressBar");
+
+const question =
+    document.getElementById("question");
+
+const options =
+    document.getElementById("options");
+
+const hint =
+    document.getElementById("hint");
+
+const explanation =
+    document.getElementById("explanation");
+
+const explanationText =
+    document.getElementById("explanationText");
+
+const importantText =
+    document.getElementById("importantText");
+
+const nextButton =
+    document.getElementById("nextButton");
+
+const quizScreen =
+    document.getElementById("quizScreen");
+
+const resultScreen =
+    document.getElementById("resultScreen");
+
+const finalScore =
+    document.getElementById("finalScore");
+
+const resultMessage =
+    document.getElementById("resultMessage");
+
+function loadQuestion() {
+
+    answered = false;
+
+    const q = questions[currentQuestion];
+
+    questionNumber.textContent =
+        "Question " +
+        (currentQuestion + 1) +
+        " of " +
+        questions.length;
+
+    scoreText.textContent =
+        "Score: " + score;
+
+    question.textContent =
+        q.question;
+
+    progressBar.style.width =
+        ((currentQuestion + 1) / questions.length * 100) + "%";
+
+    options.innerHTML = "";
+
+    hint.classList.remove("show");
+    explanation.classList.remove("show");
+    nextButton.style.display = "none";
+
+    q.options.forEach((optionText, index) => {
+
+        const button =
+            document.createElement("button");
+
+        button.className = "option";
+
+        button.textContent =
+            String.fromCharCode(65 + index) +
+            ". " +
+            optionText;
+
+        button.addEventListener("click", function() {
+
+            selectAnswer(index);
+
+        });
+
+        options.appendChild(button);
+
+    });
+}
+
+function selectAnswer(selectedIndex) {
+
+    if (answered) return;
+
+    answered = true;
+
+    const q = questions[currentQuestion];
+
+    const allOptions =
+        document.querySelectorAll(".option");
+
+    allOptions.forEach((button, index) => {
+
+        button.disabled = true;
+
+        if (index === q.answer) {
+            button.classList.add("correct");
+        }
+
+        if (index === selectedIndex &&
+            selectedIndex !== q.answer) {
+
+            button.classList.add("wrong");
+        }
+
+    });
+
+    if (selectedIndex === q.answer) {
+
+        score++;
+
+        document.getElementById("resultTitle")
+            .textContent = "✓ Correct!";
+
+        explanationText.textContent =
+            q.explanations[selectedIndex];
+
+    } else {
+
+        document.getElementById("resultTitle")
+            .textContent = "✗ Not quite.";
+
+        explanationText.textContent =
+            q.explanations[selectedIndex];
+
+    }
+
+    importantText.textContent =
+        q.important;
+
+    explanation.classList.add("show");
+
+    nextButton.style.display =
+        "block";
+
+    scoreText.textContent =
+        "Score: " + score;
+}
+
+function showHint() {
+
+    const q = questions[currentQuestion];
+
+    hint.textContent =
+        q.hint;
+
+    hint.classList.toggle("show");
+}
+
+function nextQuestion() {
+
+    currentQuestion++;
+
+    if (currentQuestion >= questions.length) {
+
+        showResult();
+
+        return;
+    }
+
+    loadQuestion();
+}
+
+function showResult() {
+
+    quizScreen.style.display =
+        "none";
+
+    resultScreen.style.display =
+        "block";
+
+    finalScore.textContent =
+        score + " / " + questions.length;
+
+    const percentage =
+        (score / questions.length) * 100;
+
+    if (percentage >= 90) {
+
+        resultMessage.textContent =
+            "Excellent! You have a strong understanding of the lesson. Review the explanations anyway so you can retain the important details.";
+
+    } else if (percentage >= 75) {
+
+        resultMessage.textContent =
+            "Good work. You understand most of the lesson, but review the questions you missed and remember the key dates and differences.";
+
+    } else if (percentage >= 50) {
+
+        resultMessage.textContent =
+            "You have a basic understanding, but you should review the lesson again, especially the timeline, movements, and important distinctions.";
+
+    } else {
+
+        resultMessage.textContent =
+            "Keep practicing. Focus on the explanations after every question and memorize the important dates, people, movements, and concepts.";
+    }
+}
+
+function restartQuiz() {
+
+    currentQuestion = 0;
+
+    score = 0;
+
+    answered = false;
+
+    resultScreen.style.display =
+        "none";
+
+    quizScreen.style.display =
+        "block";
+
+    loadQuestion();
+}
+
+loadQuestion();
+
+</script>
+
+</body>
+</html>
